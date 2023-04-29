@@ -1,4 +1,4 @@
 .parcel-cache
 node_modules
 dist
-.eslintrc.json
+.eslintrc.yml
