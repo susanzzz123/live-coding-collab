@@ -6,6 +6,7 @@ function LiveEditor() {
   const [language, setLanguage] = useState('javascript');
   const options = ['javascript', 'python', 'cpp', 'java'];
 
+  // eslint-disable-next-line no-unused-vars
   const handleEditorChange = (value, event) => {
     setCode(value);
   };
