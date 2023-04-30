@@ -2,21 +2,13 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const path = require('path');
-const { createClient } = require('redis');
-const { v4 } = require('uuid');
+const { v4: uuidv4 } = require('uuid');
+const redis = require('redis');
+const redisAdapter = require('socket.io-redis');
 
 const app = express();
 const server = http.createServer(app);
 const port = process.env.PORT || 3000;
-
-const client = createClient();
-client.on('error', console.error);
-client
-  .connect()
-  .then(() => console.log('Connected to redis locally!'))
-  .catch(() => {
-    console.error('Error connecting to redis');
-  });
 
 app.use(express.json());
 app.use(express.static('dist')); // set the static folder
@@ -26,24 +18,7 @@ app.get('/', (req, res) => {
   res.send({ msg: 'hi' });
 });
 
-app.post('/create-room-with-user', async (req, res) => {
-  const { username } = req.body;
-  const roomId = v4();
-
-  await client
-    .hSet(`${roomId}:info`, {
-      created: new Date(),
-      updated: new Date(),
-    })
-    .catch((err) => {
-      console.error(1, err);
-    });
-
-  // await client.lSet(`${roomId}:users`, [])
-
-  res.status(201).send({ roomId });
-});
-
+const redisClient = redis.createClient();
 const io = require('socket.io')(server, {
   cors: {
     origin: 'https://localhost:1234',
@@ -53,29 +28,55 @@ const io = require('socket.io')(server, {
   },
 });
 
+io.adapter(redisAdapter({ pubClient: redisClient, subClient: redisClient }));
+
 io.on('connection', async (socket) => {
-  socket.on('JOIN_ROOM', (data) => {
-    socket.join(data);
+  socket.on('ADD_USER', (username) => {
+    redisClient.set(socket.id, username);
   });
 
-  socket.on('DISSCONNECT_FROM_ROOM', async ({ roomId, username }) => {});
-  socket.on('CODE_CHANGE', (data) => {
-    console.log(data);
-    // db.send_message(
-    //   data.room,
-    //   data.author,
-    //   data.message,
-    //   data.time,
-    //   (err, data2) => {
-    //     if (err) {
-    //       console.log(err);
-    //     } else {
-    //       io.to(data.room).emit('receive_message', data);
-    //     }
-    //   },
-    // );
+  socket.on('CREATE_ROOM', () => {
+    const roomId = uuidv4();
+    redisClient.set(roomId, [socket.id]);
+    socket.join(roomId);
+    socket.emit('Living Coding Room Created', roomId);
   });
+
+  socket.on('JOIN_ROOM', (roomId) => {
+    redisClient.get(roomId, (err, users) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      let usersArr = [];
+      if (users) {
+        usersArr = JSON.parse(users);
+      }
+      usersArr.push(socket.id);
+      redisClient.set(roomId, JSON.stringify(usersArr));
+      socket.join(roomId);
+      socket.emit('Successfully joined live coding room', roomId);
+    });
+  });
+
+  socket.on('CODE_CHANGE', (roomId, change) => {
+    socket.to(roomId).emit('changed code', socket.id, change);
+  });
+
+  // When a user disconnects, remove their username from Redis
+  socket.on('DISCONNECT', () => {
+    redisClient.del(socket.id);
+  });
+
+  // Emit the list of usernames to all connected users
+  const emitUserList = async () => {
+    const socketIds = await redisClient.keys('*');
+    const usernames = await Promise.all(socketIds.map((id) => redisClient.get(id)));
+    io.emit('user list', usernames);
+  };
+  emitUserList();
 });
+
 // set favicon
 app.get('/favicon.ico', (req, res) => {
   res.status(404).send();
