@@ -2,7 +2,6 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const path = require('path');
-const { v4: uuidv4 } = require('uuid');
 const redis = require('redis');
 const redisAdapter = require('socket.io-redis');
 
@@ -31,41 +30,17 @@ const io = require('socket.io')(server, {
 io.adapter(redisAdapter({ pubClient: redisClient, subClient: redisClient }));
 
 io.on('connection', async (socket) => {
-  socket.on('ADD_USER', (username) => {
+  socket.on('JOIN', (username) => {
     redisClient.set(socket.id, username);
   });
 
-  socket.on('CREATE_ROOM', () => {
-    const roomId = uuidv4();
-    redisClient.set(roomId, [socket.id]);
-    socket.join(roomId);
-    socket.emit('Living Coding Room Created', roomId);
-  });
-
-  socket.on('JOIN_ROOM', (roomId) => {
-    redisClient.get(roomId, (err, users) => {
-      if (err) {
-        console.error(err);
-        return;
-      }
-      let usersArr = [];
-      if (users) {
-        usersArr = JSON.parse(users);
-      }
-      usersArr.push(socket.id);
-      redisClient.set(roomId, JSON.stringify(usersArr));
-      socket.join(roomId);
-      socket.emit('Successfully joined live coding room', roomId);
-    });
-  });
-
-  socket.on('CODE_CHANGE', (roomId, change) => {
-    socket.to(roomId).emit('changed code', socket.id, change);
+  socket.on('CODE_CHANGE', (change) => {
+    socket.emit('changed code', socket.id, change);
   });
 
   // When a user disconnects, remove their username from Redis
-  socket.on('DISCONNECT', () => {
-    redisClient.del(socket.id);
+  socket.on('DISCONNECT', (username) => {
+    redisClient.del(username);
   });
 
   // Emit the list of usernames to all connected users

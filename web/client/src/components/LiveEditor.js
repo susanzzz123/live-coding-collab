@@ -1,15 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
+import socket from '../Socket';
 
 function LiveEditor() {
   const [code, setCode] = useState('// begin typing your code!');
   const [language, setLanguage] = useState('javascript');
+
   const options = ['javascript', 'python', 'cpp', 'java'];
+
+  useEffect(() => {
+    socket.on('chat room joined', (roomId) => {
+      console.log(`Joined chat room ${roomId}`);
+    });
+  }, []);
 
   // eslint-disable-next-line no-unused-vars
   const handleEditorChange = (value, event) => {
     setCode(value);
   };
+
   return (
     <div>
       <div>Language:</div>
