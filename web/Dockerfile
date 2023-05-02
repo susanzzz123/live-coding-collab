@@ -17,4 +17,4 @@ RUN npm install
 COPY . .
 
 # Configure the start command
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]

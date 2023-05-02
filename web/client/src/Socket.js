@@ -1,6 +1,5 @@
 import io from 'socket.io-client';
 
-const ENDPOINT = 'http://localhost:3000';
-const socket = io(ENDPOINT, { withCredentials: true });
+const socket = io('http://localhost:3000', { withCredentials: false });
 
 export default socket;
