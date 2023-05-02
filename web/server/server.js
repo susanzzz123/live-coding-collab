@@ -45,7 +45,7 @@ io.on('connection', (socket) => {
   });
 });
 
-server.listen(port, () => {
+server.listen(port, process.env.HOST, () => {
   console.log(`Listening on port ${port}`);
 });
 

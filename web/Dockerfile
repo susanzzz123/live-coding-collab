@@ -16,5 +16,7 @@ RUN npm install
 # Copy over all of the app source code
 COPY . .
 
+ENV HOST=0.0.0.0
+
 # Configure the start command
 CMD ["npm", "run", "dev"]
