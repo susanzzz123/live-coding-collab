@@ -8,16 +8,11 @@ function App() {
   const [allUsers, setAllUsers] = useState([]);
 
   useEffect(() => {
-    socket.on('joined', () => {
-      console.log('SUCCESSFULLY JOINED ROOM');
-    });
-
     socket.emit('get_all_users');
     socket.on('all_users', (users) => {
-      console.log(users);
       setAllUsers(users);
     });
-  }, []);
+  });
 
   const joinRoom = () => {
     console.log('JOINING RN');
@@ -38,9 +33,9 @@ function App() {
         <div>
           <h4>All Users Online:</h4>
           {
-            allUsers.map((user, idx) => (
-              <span key={idx}>
-                {user}
+            allUsers.map((user) => (
+              <span key={user.id}>
+                {user.name}
                 &nbsp;
               </span>
             ))

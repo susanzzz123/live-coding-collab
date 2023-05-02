@@ -9,7 +9,7 @@ function LiveEditor({ name, setShowEditor }) {
   const options = ['javascript', 'python', 'cpp', 'java'];
 
   useEffect(() => {
-    socket.on('changed_code', (name, change) => {
+    socket.on('changed_code', (change) => {
       console.log(change);
       setCode(change);
     });
@@ -19,11 +19,6 @@ function LiveEditor({ name, setShowEditor }) {
   const handleEditorChange = (value, event) => {
     setCode(value);
     socket.emit('code_change', name, value);
-  };
-
-  const disconnect = () => {
-    socket.emit('disconnect', name);
-    setShowEditor(false);
   };
 
   return (
@@ -44,7 +39,6 @@ function LiveEditor({ name, setShowEditor }) {
         options.map((option, idx) => <option key={idx}>{option}</option>)
       }
       </select>
-      <button type="button" onClick={() => disconnect()}>Exit</button>
       <br />
       <Editor
         height="90vh"

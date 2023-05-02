@@ -22,7 +22,8 @@ const users = [];
 io.on('connection', (socket) => {
   socket.on('join', (name) => {
     // check for dup name
-    users.push(name);
+    const user = { name, id: socket.id };
+    users.push(user);
     socket.emit('joined');
     console.log(users);
   });
@@ -33,12 +34,13 @@ io.on('connection', (socket) => {
 
   socket.on('code_change', (name, change) => {
     console.log(change);
-    socket.emit('changed_code', name, change);
+    socket.emit('changed_code', change);
   });
 
-  socket.on('disconnect', (name) => {
-    console.log(`${name} disconnected`);
-    const idx = users.indexOf(name);
+  socket.on('disconnect', () => {
+    const disconnectedUser = users.filter((user) => user.id === socket.id);
+    console.log(`${disconnectedUser[0].name} disconnected`);
+    const idx = users.indexOf(disconnectedUser[0]);
     users.splice(idx, 1);
   });
 });
