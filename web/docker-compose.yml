@@ -2,17 +2,10 @@ version: "3"
 services:
   web:
     build: .
-    depends_on:
-      - redis
     ports:
-      - "8080:8080"
-    environment:
-      REDIS_URL: "redis://redis/0"
+      - "1234:1234"
+      - "3000:3000"
     volumes:
       - type: bind
         source: ./log
         target: /log
-
-  redis:
-    image: redis:latest
-    command: ["redis-server", "--appendonly", "yes"]
