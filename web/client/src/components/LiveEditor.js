@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import socket from '../Socket';
 
-function LiveEditor({ name, setShowEditor }) {
+function LiveEditor({ name }) {
   const [code, setCode] = useState('// begin typing your code!');
   const [language, setLanguage] = useState('javascript');
 
@@ -13,7 +13,10 @@ function LiveEditor({ name, setShowEditor }) {
       console.log(change);
       setCode(change);
     });
-  });
+    return () => {
+      socket.off('changed_code');
+    };
+  }, []);
 
   // eslint-disable-next-line no-unused-vars
   const handleEditorChange = (value, event) => {

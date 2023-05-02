@@ -39,7 +39,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     const disconnectedUser = users.filter((user) => user.id === socket.id);
-    console.log(`${disconnectedUser[0].name} disconnected`);
+    console.log('i disconnected');
     const idx = users.indexOf(disconnectedUser[0]);
     users.splice(idx, 1);
   });
