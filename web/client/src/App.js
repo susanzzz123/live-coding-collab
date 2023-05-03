@@ -6,23 +6,35 @@ function App() {
   const [name, setName] = useState('');
   const [showEditor, setShowEditor] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
+  const [changeName, setChangeName] = useState(false);
 
   useEffect(() => {
     socket.emit('get_all_users');
     socket.on('all_users', (users) => {
       setAllUsers(users);
     });
+    socket.on('dup_username', () => {
+      setChangeName(true);
+    });
+
+    socket.on('joined', () => {
+      setChangeName(false);
+      setShowEditor(true);
+    });
   });
 
   const joinRoom = () => {
-    console.log('JOINING RN');
     socket.emit('join', name);
-    setShowEditor(true);
   };
 
   return (
     <div>
       <h1>Welcome to the Live Coding Session!</h1>
+      {
+        changeName && (
+          <h4 style={{ color: 'red' }}>Username has been taken!</h4>
+        )
+      }
       {!showEditor && (
         <div>
           <input placeholder="Enter Your Name:" onChange={(e) => setName(e.target.value)} />

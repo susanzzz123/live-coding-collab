@@ -10,12 +10,8 @@ function LiveEditor({ name }) {
 
   useEffect(() => {
     socket.on('changed_code', (change) => {
-      console.log(change);
       setCode(change);
     });
-    return () => {
-      socket.off('changed_code');
-    };
   }, []);
 
   // eslint-disable-next-line no-unused-vars

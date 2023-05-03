@@ -22,10 +22,14 @@ const users = [];
 io.on('connection', (socket) => {
   socket.on('join', (name) => {
     // check for dup name
-    const user = { name, id: socket.id };
-    users.push(user);
-    socket.emit('joined');
-    console.log(users);
+    const arr = users.filter((user) => user.name === name);
+    if (arr.length !== 0) {
+      socket.emit('dup_username');
+    } else {
+      const user = { name, id: socket.id };
+      users.push(user);
+      socket.emit('joined');
+    }
   });
 
   socket.on('get_all_users', () => {
@@ -33,13 +37,11 @@ io.on('connection', (socket) => {
   });
 
   socket.on('code_change', (name, change) => {
-    console.log(change);
-    socket.emit('changed_code', change);
+    io.emit('changed_code', change);
   });
 
   socket.on('disconnect', () => {
     const disconnectedUser = users.filter((user) => user.id === socket.id);
-    console.log('i disconnected');
     const idx = users.indexOf(disconnectedUser[0]);
     users.splice(idx, 1);
   });
