@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Container, Navbar } from 'react-bootstrap';
 import LiveEditor from './components/LiveEditor';
 import socket from './Socket';
 
@@ -29,7 +30,11 @@ function App() {
 
   return (
     <div>
-      <h1>Welcome to the Live Coding Session!</h1>
+      <Navbar bg="light">
+        <Container>
+          <Navbar.Brand>CodeLab</Navbar.Brand>
+        </Container>
+      </Navbar>
       {
         changeName && (
           <h4 style={{ color: 'red' }}>Username has been taken!</h4>
