@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Navbar } from 'react-bootstrap';
+import NavBar from './components/NavBar';
 import LiveEditor from './components/LiveEditor';
 import socket from './Socket';
 
@@ -30,11 +30,7 @@ function App() {
 
   return (
     <div>
-      <Navbar bg="light">
-        <Container>
-          <Navbar.Brand>CodeLab</Navbar.Brand>
-        </Container>
-      </Navbar>
+      <NavBar />
       {
         changeName && (
           <h4 style={{ color: 'red' }}>Username has been taken!</h4>
