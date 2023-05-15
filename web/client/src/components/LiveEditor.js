@@ -35,7 +35,7 @@ function LiveEditor({ name }) {
         defaultValue={language}
       >
         {
-        options.map((option, idx) => <option key={idx}>{option}</option>)
+        options.map((option) => <option key={option}>{option}</option>)
       }
       </select>
       <br />

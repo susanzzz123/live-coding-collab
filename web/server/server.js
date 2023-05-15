@@ -19,8 +19,13 @@ const io = require('socket.io')(server, {
 });
 
 const users = [];
+const rooms = [];
 io.on('connection', (socket) => {
-  socket.on('join', (name) => {
+  socket.on('create', (name) => {
+
+  });
+
+  socket.on('join', (name, id) => {
     // check for dup name
     const arr = users.filter((user) => user.name === name);
     if (arr.length !== 0) {
