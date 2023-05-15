@@ -5,13 +5,11 @@ import {
   Alert, Button, Container, Row, Col, Modal, Form,
 } from 'react-bootstrap';
 import NavBar from './components/NavBar';
-import LiveEditor from './components/LiveEditor';
 import socket from './Socket';
 
 function App() {
   const [name, setName] = useState('');
   const [id, setId] = useState('');
-  // const [allUsers, setAllUsers] = useState([]);
   const [changeName, setChangeName] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
@@ -19,10 +17,6 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // socket.emit('get_all_users');
-    // socket.on('all_users', (users) => {
-    //   setAllUsers(users);
-    // });
     socket.on('dup_username', () => {
       setChangeName(true);
     });
@@ -130,21 +124,6 @@ function App() {
           </Button>
         </Modal.Footer>
       </Modal>
-
-      {/* {showEditor && (
-        <div>
-          <h4>All Users Online:</h4>
-          {
-            allUsers.map((user) => (
-              <span key={user.id}>
-                {user.name}
-                &nbsp;
-              </span>
-            ))
-          }
-          <LiveEditor name={name} setShowEditor={() => setShowEditor} />
-        </div>
-      )} */}
     </div>
   );
 }
