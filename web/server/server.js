@@ -18,37 +18,46 @@ const io = require('socket.io')(server, {
   },
 });
 
-const users = [];
-const rooms = [];
+const rooms = {};
 io.on('connection', (socket) => {
-  socket.on('create', (name) => {
-
+  socket.on('create', (name, roomId) => {
+    const user = { name, id: socket.id };
+    const users = [user];
+    rooms[roomId] = users;
+    socket.join(roomId);
+    socket.emit('nav_to_room', roomId);
   });
 
   socket.on('join', (name, id) => {
     // check for dup name
+    const users = rooms[id];
     const arr = users.filter((user) => user.name === name);
     if (arr.length !== 0) {
       socket.emit('dup_username');
     } else {
       const user = { name, id: socket.id };
       users.push(user);
-      socket.emit('joined');
+      socket.join(id);
+      socket.emit('nav_to_room', id);
+      socket.to(id).emit('joined', name);
     }
   });
 
-  socket.on('get_all_users', () => {
-    socket.emit('all_users', users);
+  socket.on('get_all_users', (roomId) => {
+    const users = rooms[roomId];
+    socket.to(roomId).emit('all_users', users);
   });
 
-  socket.on('code_change', (name, change) => {
-    io.emit('changed_code', change);
+  socket.on('code_change', (data) => {
+    io.to(data.roomId).emit('changed_code', data.change);
   });
 
-  socket.on('disconnect', () => {
+  socket.on('disconnect', (roomId) => {
+    const users = rooms[roomId];
     const disconnectedUser = users.filter((user) => user.id === socket.id);
     const idx = users.indexOf(disconnectedUser[0]);
     users.splice(idx, 1);
+    rooms[roomId] = users;
   });
 });
 
